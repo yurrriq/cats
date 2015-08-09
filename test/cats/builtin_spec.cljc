@@ -1,13 +1,11 @@
 (ns cats.builtin-spec
-  (:require [cats.builtin :as b]
+  (:require #?@(:clj  [[clojure.test :as t]
+                       [cats.core :as m]]
+                :cljs [[cljs.test :as t]
+                       [cats.core :as m :include-macros true]])
+            [cats.builtin :as b]
             [cats.protocols :as p]
-            [cats.monad.maybe :as maybe]
-
-            #?(:cljs [cljs.test :as t]
-               :clj [clojure.test :as t])
-
-            #?(:cljs [cats.core :as m :include-macros true]
-               :clj [cats.core :as m])))
+            [cats.monad.maybe :as maybe]))
 
 (t/deftest test-nil-as-maybe
   (t/testing "Nil works like nothing (for avoid unnecesary null pointers)."

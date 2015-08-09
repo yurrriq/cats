@@ -1,18 +1,13 @@
 (ns cats.monad.exception-spec
-  #?(:cljs
-     (:require [cljs.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.exception :as exc :include-macros true]
-               [cats.monad.either :as either]
-               [cats.core :as m :include-macros true])
-     :clj
-     (:require [clojure.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.exception :as exc]
-               [cats.monad.either :as either]
-               [cats.core :as m])))
+  (:require #?@(:clj  [[clojure.test :as t]
+                       [cats.core :as m]
+                       [cats.monad.exception :as exc :include-macros true]]
+                :cljs [[cljs.test :as t]
+                       [cats.core :as m :include-macros true]
+                       [cats.monad.exception :as exc]])
+            [cats.builtin :as b]
+            [cats.protocols :as p]
+            [cats.monad.either :as either]))
 
 (t/deftest basic-operations-test
   (let [e #?(:clj (Exception. "test")

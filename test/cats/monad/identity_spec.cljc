@@ -1,16 +1,11 @@
 (ns cats.monad.identity-spec
-  #?(:cljs
-     (:require [cljs.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.identity :as id]
-               [cats.core :as m :include-macros true])
-     :clj
-     (:require [clojure.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.identity :as id]
-               [cats.core :as m])))
+  (:require #?@(:clj  [[clojure.test :as t]
+                       [cats.core :as m]]
+                :cljs [[cljs.test :as t]
+                       [cats.core :as m :include-macros true]])
+            [cats.builtin :as b]
+            [cats.protocols :as p]
+            [cats.monad.identity :as id]))
 
 (t/deftest basic-operations-test
   (t/is (= 1 @(id/identity 1))))

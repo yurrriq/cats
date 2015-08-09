@@ -1,16 +1,11 @@
 (ns cats.monad.maybe-spec
-  #?(:cljs
-     (:require [cljs.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.maybe :as maybe]
-               [cats.core :as m :include-macros true])
-     :clj
-     (:require [clojure.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.maybe :as maybe]
-               [cats.core :as m])))
+  (:require #?@(:clj  [[clojure.test :as t]
+                       [cats.core :as m]]
+                :cljs [[cljs.test :as t]
+                       [cats.core :as m :include-macros true]])
+            [cats.builtin :as b]
+            [cats.protocols :as p]
+            [cats.monad.maybe :as maybe]))
 
 (t/deftest maybe-monad-tests
   (t/testing "Basic maybe operations."

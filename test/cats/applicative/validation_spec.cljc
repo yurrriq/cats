@@ -1,18 +1,12 @@
 (ns cats.applicative.validation-spec
-  #?(:cljs
-     (:require [cljs.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.applicative.validation :as validation]
-               [cats.monad.either :as either]
-               [cats.core :as m :include-macros true])
-     :clj
-     (:require [clojure.test :as t]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.applicative.validation :as validation]
-               [cats.monad.either :as either]
-               [cats.core :as m])))
+  (:require #?@(:clj  [[clojure.test :as t]
+                       [cats.core :as m]]
+                :cljs [[cljs.test :as t]
+                       [cats.core :as m :include-macros true]])
+            [cats.builtin :as b]
+            [cats.protocols :as p]
+            [cats.applicative.validation :as validation]
+            [cats.monad.either :as either]))
 
 (t/deftest basic-operations-test
   (t/is (= 42 (m/extract (validation/ok 42))))

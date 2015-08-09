@@ -1,18 +1,12 @@
 (ns cats.monad.either-spec
-  #?(:cljs
-     (:require [cljs.test :as t]
-               [clojure.string :as s]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.either :as either]
-               [cats.core :as m :include-macros true])
-     :clj
-     (:require [clojure.test :as t]
-               [clojure.string :as s]
-               [cats.builtin :as b]
-               [cats.protocols :as p]
-               [cats.monad.either :as either]
-               [cats.core :as m])))
+  (:require #?@(:clj  [[clojure.test :as t]
+                       [cats.core :as m]]
+                :cljs [[cljs.test :as t]
+                       [cats.core :as m :include-macros true]])
+            [clojure.string :as s]
+            [cats.builtin :as b]
+            [cats.protocols :as p]
+            [cats.monad.either :as either]))
 
 (t/deftest basic-operations-test
   (t/is (= 1 (m/extract (either/right 1))))

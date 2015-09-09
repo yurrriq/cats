@@ -47,6 +47,10 @@
 (declare context)
 
 (deftype Left [v]
+  clojure.lang.IObj
+  (meta [_] {:cats/context context})
+  ;; (withMeta [_ m] (Left. v m))
+
   p/Context
   (-get-context [_] context)
 
@@ -76,6 +80,10 @@
            false))]))
 
 (deftype Right [v]
+  clojure.lang.IObj
+  (meta [_] {:cats/context context})
+  ;; (withMeta [_ m] (Right. v m))
+
   p/Context
   (-get-context [_] context)
 

@@ -46,35 +46,6 @@
 
 (declare context)
 
-(deftype Right [v]
-  p/Context
-  (-get-context [_] context)
-
-  p/Extract
-  (-extract [_] v)
-
-  #?@(:cljs [cljs.core/IDeref
-             (-deref [_] v)]
-      :clj  [clojure.lang.IDeref
-             (deref [_] v)])
-
-  #?@(:clj
-      [Object
-       (equals [self other]
-         (if (instance? Right other)
-           (= v (.-v other))
-           false))
-
-       (toString [self]
-         (with-out-str (print [v])))])
-
-  #?@(:cljs
-      [cljs.core/IEquiv
-       (-equiv [_ other]
-         (if (instance? Right other)
-           (= v (.-v other))
-           false))]))
-
 (deftype Left [v]
   p/Context
   (-get-context [_] context)
@@ -104,8 +75,37 @@
            (= v (.-v other))
            false))]))
 
-(alter-meta! #'->Right assoc :private true)
+(deftype Right [v]
+  p/Context
+  (-get-context [_] context)
+
+  p/Extract
+  (-extract [_] v)
+
+  #?@(:cljs [cljs.core/IDeref
+             (-deref [_] v)]
+      :clj  [clojure.lang.IDeref
+             (deref [_] v)])
+
+  #?@(:clj
+      [Object
+       (equals [self other]
+         (if (instance? Right other)
+           (= v (.-v other))
+           false))
+
+       (toString [self]
+         (with-out-str (print [v])))])
+
+  #?@(:cljs
+      [cljs.core/IEquiv
+       (-equiv [_ other]
+         (if (instance? Right other)
+           (= v (.-v other))
+           false))]))
+
 (alter-meta! #'->Left assoc :private true)
+(alter-meta! #'->Right assoc :private true)
 
 (defn left
   "A Left type constructor."

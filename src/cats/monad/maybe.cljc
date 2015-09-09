@@ -41,7 +41,40 @@
 ;; Type constructors and functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(deftype Nothing []
+  clojure.lang.IObj
+  (meta [_] {:cats/context context})
+  ;; (withMeta [_ m] (Left. v m))
+
+  p/Context
+  (-get-context [_] context)
+
+  p/Extract
+  (-extract [_] nil)
+
+  #?@(:cljs [cljs.core/IDeref
+             (-deref [_] nil)]
+      :clj  [clojure.lang.IDeref
+             (deref [_] nil)])
+
+  #?@(:clj
+      [Object
+       (equals [self other]
+         (instance? Nothing other))
+
+       (toString [self]
+         (str "#<" (.getSimpleName (class self)) ">"))])
+
+  #?@(:cljs
+      [cljs.core/IEquiv
+       (-equiv [_ other]
+         (instance? Nothing other))]))
+
 (deftype Just [v]
+  clojure.lang.IObj
+  (meta [_] {:cats/context context})
+  ;; (withMeta [_ m] (Left. v m))
+
   p/Context
   (-get-context [_] context)
 
@@ -61,7 +94,7 @@
            false))
 
        (toString [self]
-         (with-out-str (print [v])))])
+         (str "#<" (.getSimpleName (class self)) " " (pr-str v) ">"))])
 
   #?@(:cljs
       [cljs.core/IEquiv
@@ -70,60 +103,21 @@
            (= v (.-v other))
            false))]))
 
-(deftype Nothing []
-  p/Context
-  (-get-context [_] context)
-
-  p/Extract
-  (-extract [_] nil)
-
-  #?@(:cljs [cljs.core/IDeref
-             (-deref [_] nil)]
-      :clj  [clojure.lang.IDeref
-             (deref [_] nil)])
-
-  #?@(:clj
-      [Object
-       (equals [self other]
-         (instance? Nothing other))
-
-       (toString [self]
-         (with-out-str (print "")))])
-
-  #?@(:cljs
-      [cljs.core/IEquiv
-       (-equiv [_ other]
-         (instance? Nothing other))]))
-
 (alter-meta! #'->Nothing assoc :private true)
 (alter-meta! #'->Just assoc :private true)
-
-(defn maybe?
-  "Return true in case of `v` is instance
-  of Maybe monad."
-  [v]
-  (if (satisfies? p/Context v)
-    (identical? (p/-get-context v) context)
-    false))
-
-(defn just
-  "A Just type constructor.
-
-  Without arguments it returns a Just instance
-  with nil as wrapped value."
-  ([] (Just. nil))
-  ([v] (Just. v)))
 
 (defn nothing
   "A Nothing type constructor."
   []
   (Nothing.))
 
-(defn just?
-  "Returns true if `v` is an instance
-  of `Just` type."
-  [v]
-  (instance? Just v))
+(defn just
+  "A Just type constructor.
+
+  Without arguments it returns a Just instance
+  with nil as wrapped value."
+  ([]  (just nil))
+  ([v] (Just. v)))
 
 (defn nothing?
   "Returns true if `v` is an instance
@@ -132,6 +126,20 @@
   (or
    (nil? v)
    (instance? Nothing v)))
+
+(defn just?
+  "Returns true if `v` is an instance
+  of `Just` type."
+  [v]
+  (instance? Just v))
+
+(defn maybe?
+  "Return true in case of `v` is instance
+  of Maybe monad."
+  [v]
+  (if (satisfies? p/Context v)
+    (identical? (p/-get-context v) context)
+    false))
 
 (defn from-maybe
   "Return inner value from maybe monad.
@@ -232,7 +240,12 @@
       (if (just? mv)
         (let [a (f (p/-extract mv))]
           (p/-fmap (p/-get-context a) just a))
-        (p/-pure (ctx/get-current) mv)))))
+        (p/-pure (ctx/get-current) mv)))
+
+    #?@(:clj
+        [Object
+         (toString [self]
+           "Maybe Context")])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monad Transformer

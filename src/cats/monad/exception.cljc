@@ -79,6 +79,10 @@
 (declare context)
 
 (deftype Success [v]
+  clojure.lang.IObj
+  (meta [_] {:cats/context context})
+  ;; (withMeta [_ m] (Success. v m))
+
   p/Context
   (-get-context [_] context)
 
@@ -98,7 +102,7 @@
            false))
 
        (toString [self]
-         (with-out-str (print [v])))])
+         (str "#<" (.getSimpleName (class self)) " " (pr-str v) ">"))])
 
   #?@(:cljs
       [cljs.core/IEquiv
@@ -108,6 +112,10 @@
            false))]))
 
 (deftype Failure [e]
+  clojure.lang.IObj
+  (meta [_] {:cats/context context})
+  ;; (withMeta [_ m] (Right. v m))
+
   p/Context
   (-get-context [_] context)
 
@@ -128,7 +136,7 @@
            false))
 
        (toString [self]
-         (with-out-str (print [e])))])
+         (str "#<" (.getSimpleName (class self)) " " (pr-str e) ">"))])
 
   #?@(:cljs
       [cljs.core/IEquiv
@@ -299,4 +307,9 @@
     (-mbind [_ s f]
       (if (success? s)
         (f (p/-extract s))
-        s))))
+        s))
+
+    #?@(:clj
+        [Object
+         (toString [self]
+           "Exception Context")])))

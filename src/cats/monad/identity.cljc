@@ -36,6 +36,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deftype Identity [v]
+  clojure.lang.IObj
+  (meta [_] {:cats/context context})
+  ;; (withMeta [_ m] (Identity. v m))
+
   p/Context
   (-get-context [_] context)
 
@@ -97,4 +101,9 @@
       (Identity. v))
 
     (-mbind [_ mv f]
-      (f (.-v mv)))))
+      (f (.-v mv)))
+
+    #?@(:clj
+        [Object
+         (toString [self]
+           "Identity Context")])))

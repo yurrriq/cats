@@ -195,7 +195,12 @@
       (if (right? mv)
         (let [a (f (p/-extract mv))]
           (p/-fmap (p/-get-context a) right a))
-        (p/-pure (ctx/get-current) mv)))))
+        (p/-pure (ctx/get-current) mv)))
+
+    #?@(:clj
+        [Object
+         (toString [self]
+           "Either Context")])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monad Transformer

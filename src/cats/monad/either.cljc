@@ -70,7 +70,7 @@
            false))
 
        (toString [self]
-         (with-out-str (print [v])))])
+         (str "#<" (.getSimpleName (class self)) " " (pr-str v) ">"))])
 
   #?@(:cljs
       [cljs.core/IEquiv
@@ -103,7 +103,7 @@
            false))
 
        (toString [self]
-         (with-out-str (print [v])))])
+         (str "#<" (.getSimpleName (class self)) " " (pr-str v) ">"))])
 
   #?@(:cljs
       [cljs.core/IEquiv

@@ -40,7 +40,7 @@
   (meta [_] {:cats/context context})
   ;; (withMeta [_ m] (Identity. v m))
 
-  p/Context
+  p/Contextual
   (-get-context [_] context)
 
   p/Extract
@@ -82,7 +82,7 @@
 (def ^{:no-doc true}
   context
   (reify
-    p/ContextClass
+    p/Context
     (-get-level [_] ctx/+level-default+)
 
     p/Functor

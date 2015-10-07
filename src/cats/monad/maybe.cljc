@@ -70,6 +70,9 @@
        (-equiv [_ other]
          (instance? Nothing other))]))
 
+#?(:clj (defmethod clojure.core/print-method Nothing [n ^java.io.Writer w]
+          (.write w (.toString n))))
+
 (deftype Just [v]
   clojure.lang.IObj
   (meta [_] {:cats/context context})
@@ -102,6 +105,9 @@
          (if (instance? Just other)
            (= v (.-v other))
            false))]))
+
+#?(:clj (defmethod clojure.core/print-method Just [j ^java.io.Writer w]
+          (.write w (.toString j))))
 
 (alter-meta! #'->Nothing assoc :private true)
 (alter-meta! #'->Just assoc :private true)

@@ -68,6 +68,8 @@
            (= v (.-v other))
            false))]))
 
+(cats.core/make-printable Identity)
+
 (alter-meta! #'->Identity assoc :private true)
 
 (defn identity

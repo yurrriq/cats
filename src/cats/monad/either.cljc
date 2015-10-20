@@ -80,13 +80,7 @@
            (= v (.-v other))
            false))]))
 
-#?(:clj  (defmethod print-method Left
-           [mv ^java.io.Writer writer]
-           (.write writer (m/str mv)))
-   :cljs (extend-type Left
-           IPrintWithWriter
-           (-pr-writer [mv writer _]
-             (-write writer (m/str mv)))))
+(cats.core/make-printable Left)
 
 (deftype Right [v]
   clojure.lang.IObj
@@ -121,13 +115,7 @@
            (= v (.-v other))
            false))]))
 
-#?(:clj  (defmethod print-method Right
-           [mv ^java.io.Writer writer]
-           (.write writer (m/str mv)))
-   :cljs (extend-type Right
-           IPrintWithWriter
-           (-pr-writer [mv writer _]
-             (-write writer (m/str mv)))))
+(cats.core/make-printable Right)
 
 (alter-meta! #'->Left assoc :private true)
 (alter-meta! #'->Right assoc :private true)

@@ -111,6 +111,8 @@
            (= v (.-v other))
            false))]))
 
+(cats.core/make-printable Success)
+
 (deftype Failure [e]
   clojure.lang.IObj
   (meta [_] {:cats/context context})
@@ -144,6 +146,8 @@
          (if (instance? Failure other)
            (= e (.-e other))
            false))]))
+
+(cats.core/make-printable Failure)
 
 (alter-meta! #'->Success assoc :private true)
 (alter-meta! #'->Failure assoc :private true)

@@ -209,6 +209,55 @@
   (-get-context [_] vector-context))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Array Map Monad
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def array-map-context
+  (reify
+    p/Context
+    (-get-level [_] ctx/+level-default+)
+
+    p/Semigroup
+    (-mappend [_ sv sv']
+      (into sv sv'))
+
+    p/Monoid
+    (-mempty [_]
+      (array-map))
+
+    p/Functor
+    (-fmap [_ f v]
+      (into (array-map) (map f v)))
+
+    p/Monad
+    (-mreturn [_ v]
+      (into (array-map) [v]))
+
+    (-mbind [_ self f]
+      (into (array-map) (mapcat f self)))
+
+    p/MonadZero
+    (-mzero [_]
+      (array-map))
+
+    p/MonadPlus
+    (-mplus [_ mv mv']
+      (into mv mv'))
+
+    p/Foldable
+    (-foldr [ctx f z xs]
+      (letfn [(rf [acc v] (f v acc))]
+        (reduce rf z (reverse xs))))
+
+    (-foldl [ctx f z xs]
+      (reduce f z xs))))
+
+(extend-type #?(:clj clojure.lang.PersistentArrayMap
+                :cljs cljs.core.PersistentArrayMap)
+  p/Contextual
+  (-get-context [_] array-map-context))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set Monad
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -259,6 +308,49 @@
   (-get-context [_] set-context))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function Monad
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def function-context
+  (reify
+    p/Context
+    (-get-level [_] ctx/+level-default+)
+
+    p/Semigroup
+    (-mappend [ctx f g] (comp f g))
+
+    p/Monoid
+    (-mempty [_] identity)
+
+    p/Functor
+    (-fmap [_ f self]
+      (comp f self))
+
+    p/Applicative
+    (-pure [_ v]
+      (constantly v))
+
+    (-fapply [_ self av]
+      (fn [x] (self x (av x))))
+
+    p/Monad
+    (-mreturn [_ v]
+      (constantly v))
+
+    (-mbind [_ self f]
+      (fn [r] ((f (self r)) r)))))
+
+(extend-type #?(:clj clojure.lang.IFn
+                :cljs cljs.core.IFn)
+  p/Contextual
+  (-get-context [_] function-context))
+
+#?(:cljs
+   (extend-type function
+     p/Contextual
+     (-get-context [_] function-context)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monoids
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -279,15 +371,6 @@
                 :cljs cljs.core.PersistentHashMap)
   p/Contextual
   (-get-context [_] map-monoid))
-
-#?(:clj
-   (extend-type clojure.lang.PersistentArrayMap
-     p/Contextual
-     (-get-context [_] map-monoid))
-   :cljs
-   (extend-type cljs.core.PersistentArrayMap
-     p/Contextual
-     (-get-context [_] map-monoid)))
 
 #?(:clj
    (extend-type clojure.lang.PersistentTreeMap

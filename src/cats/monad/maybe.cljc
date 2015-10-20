@@ -33,8 +33,7 @@
       ;; => #<Just [1]>
   "
   (:require [cats.protocols :as p]
-            [cats.context :as ctx]
-            [cats.core :as m]))
+            [cats.context :as ctx]))
 
 (declare context)
 
@@ -71,13 +70,7 @@
        (-equiv [_ other]
          (instance? Nothing other))]))
 
-#?(:clj  (defmethod print-method Nothing
-           [mv ^java.io.Writer writer]
-           (.write writer (m/str mv)))
-   :cljs (extend-type Nothing
-           IPrintWithWriter
-           (-pr-writer [mv writer _]
-             (-write writer (m/str mv)))))
+(cats.core/make-printable Nothing)
 
 (deftype Just [v]
   clojure.lang.IObj
@@ -112,13 +105,7 @@
            (= v (.-v other))
            false))]))
 
-#?(:clj  (defmethod print-method Just
-           [mv ^java.io.Writer writer]
-           (.write writer (m/str mv)))
-   :cljs (extend-type Just
-           IPrintWithWriter
-           (-pr-writer [mv writer _]
-             (-write writer (m/str mv)))))
+(cats.core/make-printable Just)
 
 (alter-meta! #'->Nothing assoc :private true)
 (alter-meta! #'->Just assoc :private true)

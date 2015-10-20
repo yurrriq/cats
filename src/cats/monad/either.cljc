@@ -38,7 +38,8 @@
       ;; => #<Left [1]>
   "
   (:require [cats.protocols :as p]
-            [cats.context :as ctx]))
+            [cats.context :as ctx]
+            [cats.core :as m]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Type constructor and functions
@@ -79,6 +80,14 @@
            (= v (.-v other))
            false))]))
 
+#?(:clj  (defmethod print-method Left
+           [mv ^java.io.Writer writer]
+           (.write writer (m/str mv)))
+   :cljs (extend-type Left
+           IPrintWithWriter
+           (-pr-writer [mv writer _]
+             (-write writer (m/str mv)))))
+
 (deftype Right [v]
   clojure.lang.IObj
   (meta [_] {:cats/context context})
@@ -111,6 +120,14 @@
          (if (instance? Right other)
            (= v (.-v other))
            false))]))
+
+#?(:clj  (defmethod print-method Right
+           [mv ^java.io.Writer writer]
+           (.write writer (m/str mv)))
+   :cljs (extend-type Right
+           IPrintWithWriter
+           (-pr-writer [mv writer _]
+             (-write writer (m/str mv)))))
 
 (alter-meta! #'->Left assoc :private true)
 (alter-meta! #'->Right assoc :private true)

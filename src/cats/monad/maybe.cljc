@@ -33,7 +33,8 @@
       ;; => #<Just [1]>
   "
   (:require [cats.protocols :as p]
-            [cats.context :as ctx]))
+            [cats.context :as ctx]
+            [cats.util :as util]))
 
 (declare context)
 
@@ -52,6 +53,10 @@
   p/Extract
   (-extract [_] nil)
 
+  p/Printable
+  (-repr [_]
+    "#<Nothing>")
+
   #?@(:cljs [cljs.core/IDeref
              (-deref [_] nil)]
       :clj  [clojure.lang.IDeref
@@ -60,17 +65,11 @@
   #?@(:clj
       [Object
        (equals [self other]
-         (instance? Nothing other))
-
-       (toString [self]
-         (str "#<" (.getSimpleName (class self)) ">"))])
-
-  #?@(:cljs
+         (instance? Nothing other))]
+      :cljs
       [cljs.core/IEquiv
        (-equiv [_ other]
          (instance? Nothing other))]))
-
-(cats.core/make-printable Nothing)
 
 (deftype Just [v]
   clojure.lang.IObj
@@ -83,6 +82,10 @@
   p/Extract
   (-extract [_] v)
 
+  p/Printable
+  (-repr [_]
+    (str "#<Just " (pr-str v) ">"))
+
   #?@(:cljs [cljs.core/IDeref
              (-deref [_] v)]
       :clj  [clojure.lang.IDeref
@@ -93,22 +96,19 @@
        (equals [self other]
          (if (instance? Just other)
            (= v (.-v other))
-           false))
-
-       (toString [self]
-         (str "#<" (.getSimpleName (class self)) " " (pr-str v) ">"))])
-
-  #?@(:cljs
+           false))]
+      :cljs
       [cljs.core/IEquiv
        (-equiv [_ other]
          (if (instance? Just other)
            (= v (.-v other))
            false))]))
 
-(cats.core/make-printable Just)
-
 (alter-meta! #'->Nothing assoc :private true)
 (alter-meta! #'->Just assoc :private true)
+
+(util/make-printable Nothing)
+(util/make-printable Just)
 
 (defn nothing
   "A Nothing type constructor."
@@ -244,12 +244,7 @@
       (if (just? mv)
         (let [a (f (p/-extract mv))]
           (p/-fmap (p/-get-context a) just a))
-        (p/-pure (ctx/get-current) mv)))
-
-    #?@(:clj
-        [Object
-         (toString [self]
-           "Maybe Context")])))
+        (p/-pure (ctx/get-current) mv)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monad Transformer

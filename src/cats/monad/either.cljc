@@ -39,7 +39,7 @@
   "
   (:require [cats.protocols :as p]
             [cats.context :as ctx]
-            [cats.core :as m]))
+            [cats.util :as util]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Type constructor and functions
@@ -58,6 +58,10 @@
   p/Extract
   (-extract [_] v)
 
+  p/Printable
+  (-repr [_]
+    (str "#<Left " (pr-str v) ">"))
+
   #?@(:cljs [cljs.core/IDeref
              (-deref [_] v)]
       :clj  [clojure.lang.IDeref
@@ -68,19 +72,14 @@
        (equals [self other]
          (if (instance? Left other)
            (= v (.-v other))
-           false))
+           false))]
 
-       (toString [self]
-         (str "#<" (.getSimpleName (class self)) " " (pr-str v) ">"))])
-
-  #?@(:cljs
+      :cljs
       [cljs.core/IEquiv
        (-equiv [_ other]
          (if (instance? Left other)
            (= v (.-v other))
            false))]))
-
-(cats.core/make-printable Left)
 
 (deftype Right [v]
   clojure.lang.IObj
@@ -93,6 +92,10 @@
   p/Extract
   (-extract [_] v)
 
+  p/Printable
+  (-repr [_]
+    (str "#<Right " (pr-str v) ">"))
+
   #?@(:cljs [cljs.core/IDeref
              (-deref [_] v)]
       :clj  [clojure.lang.IDeref
@@ -103,22 +106,20 @@
        (equals [self other]
          (if (instance? Right other)
            (= v (.-v other))
-           false))
+           false))]
 
-       (toString [self]
-         (str "#<" (.getSimpleName (class self)) " " (pr-str v) ">"))])
-
-  #?@(:cljs
+      :cljs
       [cljs.core/IEquiv
        (-equiv [_ other]
          (if (instance? Right other)
            (= v (.-v other))
            false))]))
 
-(cats.core/make-printable Right)
-
-(alter-meta! #'->Left assoc :private true)
+(alter-meta! #'->Left  assoc :private true)
 (alter-meta! #'->Right assoc :private true)
+
+(util/make-printable Left)
+(util/make-printable Right)
 
 (defn left
   "A Left type constructor."
@@ -200,12 +201,7 @@
       (if (right? mv)
         (let [a (f (p/-extract mv))]
           (p/-fmap (p/-get-context a) right a))
-        (p/-pure (ctx/get-current) mv)))
-
-    #?@(:clj
-        [Object
-         (toString [self]
-           "Either Context")])))
+        (p/-pure (ctx/get-current) mv)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monad Transformer

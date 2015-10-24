@@ -123,12 +123,12 @@
 
 (defn left
   "A Left type constructor."
-  ([]  (left nil))
+  ([]  (Left. nil))
   ([v] (Left. v)))
 
 (defn right
   "A Right type constructor."
-  ([]  (right nil))
+  ([]  (Right. nil))
   ([v] (Right. v)))
 
 (defn left?

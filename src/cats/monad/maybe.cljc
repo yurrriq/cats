@@ -120,7 +120,7 @@
 
   Without arguments it returns a Just instance
   with nil as wrapped value."
-  ([]  (just nil))
+  ([]  (Just. nil))
   ([v] (Just. v)))
 
 (defn nothing?

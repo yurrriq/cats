@@ -35,7 +35,7 @@
      (:require [cats.protocols :as p]
                [clojure.set]
                [cats.context :as ctx]))
-  (:refer-clojure :exclude [filter sequence str unless when]))
+  (:refer-clojure :exclude [filter sequence unless when]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Context-aware functions
@@ -773,24 +773,3 @@
   ([ctx f tv]
    (ctx/with-context ctx
      (p/-traverse (p/-get-context tv) f tv))))
-
-;; EB: I'm not sure where this should live.
-(defn str
-  "TODO: write docstring"
-  [mv]
-  (or (clojure.core/when (satisfies? p/Extract mv)
-        (when-let [klass (some-> (class mv) (. getSimpleName))]
-          (let [v (some->> (extract mv) pr-str (clojure.core/str " "))]
-            (clojure.core/str "#<" klass v ">"))))
-      (clojure.core/str mv)))
-
-;; EB: I'm not sure where this should live.
-#?(:clj
-   (defmacro make-printable [klass]
-     #?(:clj  `(defmethod print-method ~klass
-                 [~'mv# ^java.io.Writer ~'writer#]
-                 (.write ~'writer# (str ~'mv#)))
-        :cljs `(extend-type ~klass
-                 IPrintWithWriter
-                 (-pr-writer [~'mv# ~'writer# ~'_]
-                   (-write ~'writer# (str ~'mv#)))))))

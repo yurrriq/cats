@@ -70,8 +70,6 @@
            (= v (.-v other))
            false))]))
 
-(cats.core/make-printable Identity)
-
 (alter-meta! #'->Identity assoc :private true)
 
 (util/make-printable Identity)
@@ -107,9 +105,4 @@
       (Identity. v))
 
     (-mbind [_ mv f]
-      (f (.-v mv)))
-
-    #?@(:clj
-        [Object
-         (toString [self]
-           "Identity Context")])))
+      (f (.-v mv)))))

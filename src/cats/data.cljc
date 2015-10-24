@@ -75,8 +75,6 @@
   p/Contextual
   (-get-context [data] context))
 
-(cats.core/make-printable Pair)
-
 (alter-meta! #'->Pair assoc :private true)
 
 (util/make-printable Pair)

@@ -67,8 +67,6 @@
            (= v (.-v other))
            false))]))
 
-(cats.core/make-printable Ok)
-
 (deftype Fail [v]
   p/Contextual
   (-get-context [_] context)
@@ -97,8 +95,6 @@
          (if (instance? Fail other)
            (= v (.-v other))
            false))]))
-
-(cats.core/make-printable Fail)
 
 (alter-meta! #'->Ok assoc :private true)
 (alter-meta! #'->Fail assoc :private true)

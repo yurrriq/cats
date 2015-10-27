@@ -36,7 +36,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn mempty
-  ([] (p/-mempty (ctx/get-current)))
+  ([]    (p/-mempty (ctx/get-current)))
   ([ctx] (p/-mempty ctx)))
 
 (defn mappend
@@ -727,7 +727,7 @@
       (m/foldm maybe/context m-div 1 [1 0 3])
       ;; => #<Nothing>
 
-      (foldm m-div 1 [])
+      (m/foldm m-div 1 [])
       ;; => Exception
 
       (m/foldm maybe/context m-div 1 [])

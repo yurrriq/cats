@@ -25,17 +25,12 @@
 
 (ns cats.context
   "A cats context management."
-  (:require [cats.protocols :as p]))
+  (:require [cats.protocols :as p]
+            [cats.util :as util]))
 
 (def ^:dynamic *context* nil)
 (def ^:const +level-default+ 10)
 (def ^:const +level-transformer+ 100)
-
-(defn throw-ilegal-argument
-  {:no-doc true :internal true}
-  [text]
-  #?(:cljs (throw (ex-info text {}))
-     :clj  (throw (IllegalArgumentException. text))))
 
 #?(:clj
    (defmacro with-context
@@ -43,7 +38,8 @@
      [ctx & body]
      `(do
         (when (not (satisfies? p/Context ~ctx))
-          (throw-ilegal-argument "The provided context does not implements Context."))
+          (util/throw-illegal-argument
+           "The provided context does not implements Context."))
         (if (nil? *context*)
           (binding [*context* ~ctx]
             ~@body)
@@ -70,7 +66,7 @@
   ([]
    (if (not-nil? *context*)
      *context*
-     (throw-ilegal-argument
+     (util/throw-illegal-argument
       "No context is set and it can not be automatically resolved.")))
   ([param]
    (cond
@@ -84,5 +80,5 @@
      param
 
      :else
-     (throw-ilegal-argument
+     (util/throw-illegal-argument
       "No context is set and it can not be automatically resolved."))))

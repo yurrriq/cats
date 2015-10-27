@@ -27,8 +27,7 @@
   "A collection of utils that used around the library."
   (:require [cats.protocols]))
 
-(defn make-printable
-  [klass]
+(defn make-printable [klass]
   #?(:clj  (defmethod print-method klass
              [mv ^java.io.Writer writer]
              (.write writer (cats.protocols/-repr mv)))
@@ -36,3 +35,8 @@
              IPrintWithWriter
              (-pr-writer [mv writer _]
                (-write writer (cats.protocols/-repr mv))))))
+
+(defn throw-illegal-argument [text]
+  {:no-doc true}
+  (throw #?(:cljs (ex-info text {})
+            :clj  (IllegalArgumentException. text))))

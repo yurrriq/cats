@@ -25,16 +25,10 @@
 
 (ns cats.core
   "Category Theory abstractions for Clojure"
-  #?(:cljs
-     (:require-macros [cats.core :refer (mlet)]))
-  #?(:cljs
-     (:require [cats.protocols :as p]
-               [clojure.set]
-               [cats.context :as ctx :include-macros true])
-     :clj
-     (:require [cats.protocols :as p]
-               [clojure.set]
-               [cats.context :as ctx]))
+  #?(:cljs (:require-macros [cats.core :refer (mlet)]))
+  (:require [cats.context :as ctx #?@(:cljs [:include-macros true])]
+            [cats.protocols :as p]
+            [clojure.set])
   (:refer-clojure :exclude [filter sequence unless when]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

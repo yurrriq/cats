@@ -28,6 +28,7 @@
   #?(:cljs (:require-macros [cats.core :refer (mlet)]))
   (:require [cats.context :as ctx #?@(:cljs [:include-macros true])]
             [cats.protocols :as p]
+            [cats.util :as util]
             [clojure.set])
   (:refer-clojure :exclude [filter sequence unless when]))
 
@@ -767,3 +768,65 @@
   ([ctx f tv]
    (ctx/with-context ctx
      (p/-traverse (p/-get-context tv) f tv))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Define Monadic Function Macro
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; N.B. This code is more or less copied from #'clojure.core/defn except for the
+;; reify part. I also took some liberties in making the code a little more
+;; readable and capitalized on the fact the clojure.core is already bootstrapped
+;; at this point (as compared to when defn is being defined).
+;;
+;; Consider this a rough work in progress for now.
+
+(defn- sigs [fdecl]
+  (letfn [(asig [[arglist & body]]
+            (cond-> arglist
+              (and (map? (first body)) (next body))
+              (with-meta (conj (or (meta arglist) {}) (first body)))))]
+    (if (seq? (first fdecl))
+      (seq (reduce #(conj %1 (asig %2)) [] fdecl))
+      (list (asig fdecl)))))
+
+(defn- assoc-inline [fname attr-map]
+  (let [inline (:inline attr-map), ifn (first inline), iname (second inline)]
+    (if (and (= 'fn ifn) (not (symbol? iname)))
+      (-> (.getName ^clojure.lang.Symbol fname)
+          (.concat "__inliner")
+          clojure.lang.Symbol/intern
+          (cons (next inline))
+          (->> (cons ifn) (assoc attr-map :inline)))
+      attr-map)))
+
+(defmacro defmfn
+  "Given a monadic context followed by valid arguments to #'clojure.core/defn,
+  return an object that walks and talks like a function and also
+  implements the Contextual protocol."
+  [ctx fname & fdecl]
+  (if (not (symbol? fname))
+    (util/throw-illegal-argument "Second argument to defmfn must be a symbol")
+    `(if (not (satisfies? cats.protocols/Context ~ctx))
+       (util/throw-illegal-argument "First argument to defmfn must be a context")
+       ~(let [attr-map (if (string? (first fdecl)) {:doc (first fdecl)} {})
+              fdecl    (if (string? (first fdecl)) (next fdecl) fdecl)
+              attr-map (cond-> attr-map (map? (first fdecl)) (conj (first fdecl)))
+              fdecl    (cond-> fdecl (map? (first fdecl)) next)
+              fdecl    (cond-> fdecl (vector? (first fdecl)) list)
+              attr-map (cond-> attr-map (map? (last fdecl)) (conj (last fdecl)))
+              fdecl    (cond-> fdecl (map? (last fdecl)) butlast)
+              attr-map (->> (conj {:arglists (list 'quote (sigs fdecl))} attr-map)
+                            (assoc-inline fname)
+                            (conj (or (meta fname) {})))]
+          `(def ~(with-meta fname attr-map)
+             (reify
+               p/Contextual
+               (-get-context [_] ~ctx)
+               p/Printable
+               (-repr [_]
+                 (str "#<" ~(p/-repr ctx) " Function>"))
+               clojure.lang.IFn
+               ~@(map (fn [[arglist & body]]
+                        `(invoke [_ ~@arglist] ~@body))
+                   fdecl)))))))

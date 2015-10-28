@@ -823,9 +823,6 @@
              (reify
                p/Contextual
                (-get-context [_] ~ctx)
-               p/Printable
-               (-repr [_]
-                 (str "#<" ~(p/-repr ctx) " Function>"))
                clojure.lang.IFn
                ~@(map (fn [[arglist & body]]
                         `(invoke [_ ~@arglist] ~@body))

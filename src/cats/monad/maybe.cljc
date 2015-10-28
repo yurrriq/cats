@@ -244,7 +244,13 @@
       (if (just? mv)
         (let [a (f (p/-extract mv))]
           (p/-fmap (p/-get-context a) just a))
-        (p/-pure (ctx/get-current) mv)))))
+        (p/-pure (ctx/get-current) mv)))
+
+    p/Printable
+    (-repr [_]
+      "#<Maybe>")))
+
+(util/make-printable (type context))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monad Transformer
@@ -293,7 +299,11 @@
       (p/-mbind inner
                 mv
                 (fn [v]
-                  (p/-mreturn inner (just v)))))))
+                  (p/-mreturn inner (just v)))))
+
+    p/Printable
+    (-repr [_]
+      "#<Maybe-T>")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility functions

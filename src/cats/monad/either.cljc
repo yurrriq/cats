@@ -276,9 +276,7 @@
   either is a right apply the second function to its value."
   [e lf rf]
   {:pre [(either? e)]}
-  (if (left? e)
-    (lf (p/-extract e))
-    (rf (p/-extract e))))
+  (p/-extract (p/-bimap context lf rf e)))
 
 (defn branch-left
   "Given an either value and a function, if the either is a
@@ -286,7 +284,7 @@
   either is a right, return it."
   [e lf]
   {:pre [(either? e)]}
-  (branch e lf right))
+  (p/-extract (p/-first context lf e)))
 
 (defn branch-right
   "Either-specific synonym for #'cats.core/bind
@@ -296,7 +294,7 @@
   either is a left, return it."
   [e rf]
   {:pre [(either? e)]}
-  (p/-mbind context e rf))
+  (p/-extract (p/-second context rf e)))
 
 (def lefts
   "Given a collection of eithers, return only the values that are left."

@@ -169,7 +169,7 @@
       (p/-bimap btor f identity s))
 
     (-second [btor g s]
-      (p/-bimap btor identity g s))
+      (p/-fmap btor g s))
 
     p/Applicative
     (-pure [_ v]

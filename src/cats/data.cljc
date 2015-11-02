@@ -107,6 +107,16 @@
     (-fmap [_ f mv]
       (pair (.-fst mv) (f (.-snd mv))))
 
+    p/Bifunctor
+    (-bimap [_ f g s]
+      (pair (f (.-fst s)) (g (.-snd s))))
+
+    (-first [btor f s]
+      (p/-bimap btor f identity s))
+
+    (-second [btor g s]
+      (p/-fmap btor g s))
+
     p/Foldable
     (-foldl [_ f z mv]
       (f z (.-snd mv)))
